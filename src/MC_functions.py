@@ -705,8 +705,8 @@ def occurrence_rate():
 
    return kernel,np.sum(f_occur)
 
-# monte carlo integration
-def MC_int(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,atm_N2_CO2):
+# monte carlo sampling
+def MC_sample(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,atm_N2_CO2):
 
    ## data and functions
    # stuff u need to calculate the boiling point

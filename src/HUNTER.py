@@ -74,7 +74,7 @@ for iter1 in range(len(planet_mass)):
                   relhum = getattr(MC,rel_humidity[iter5])
                   atm_N2_CO2 = getattr(MC,N2_CO2_mix_rat[iter6])
                   # integrating
-                  results = MC.MC_int(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,atm_N2_CO2)
+                  results = MC.MC_sample(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,atm_N2_CO2)
                   
                   # save results                  
                   [all_MS,all_flux,all_Rp,all_Mp,all_atmtype,all_Psurf,all_Tsurf,all_alb,all_relhum,all_CO2,all_N2,all_habi,planet,rocky,habitable] = results
