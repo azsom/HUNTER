@@ -1,5 +1,5 @@
 # this code performs an MC sampling to estimate what fraction of rocky planets could 
-# harbor liquid water
+# harbor liquid water in the data set of Dressing&Charbonneau 2013.
 # it uses precalcualted all-convective T-P profiles from Clima_expsum to speed up the calculation
 # currently there are tables for H2, N2, and CO2 dominated atmospheres
 
@@ -43,7 +43,7 @@ RP_data = np.array([0.5,0.7,1.0,1.4,2.0,2.8,4.0,5.7,8.0,11.3,16.0,22.6])
 print '* integrating *'
 
 # number of MC shoots:
-n = 1e6
+n = 1e5
 
 # distributions to use
 planet_mass = ['Mplanet_gauss_opt_sigma6']#['Mplanet_gauss_opt_sigma6','Mplanet_gauss_norm_sigma6','Mplanet_gauss_pes_sigma6','Mplanet_gauss_opt_sigma3','Mplanet_gauss_norm_sigma3','Mplanet_gauss_pes_sigma3']
