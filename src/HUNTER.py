@@ -79,8 +79,7 @@ for iter1 in range(len(planet_mass)):
                   # save results                  
                   [all_MS,all_flux,all_Rp,all_Mp,all_atmtype,all_Psurf,all_Tsurf,all_alb,all_relhum,all_CO2,all_N2,all_habi,planet,rocky,habitable] = results
                   
-                  file = open('../results/30057.dat','w')
-                  #file = open('../results/'+"%05d" % i + '.dat','w')
+                  file = open('../results/'+"%05d" % i + '.dat','w')
                   string = planet_mass[iter1]+','+atmosphere[iter2]+','+surf_pressure[iter3]+','+surf_albedo[iter4]+','+rel_humidity[iter5]+','+N2_CO2_mix_rat[iter6]+'\n'
                   file.write(string)
                   file.write(str(n)+'\n')
