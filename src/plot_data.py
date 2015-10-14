@@ -1,6 +1,6 @@
 # to read and plot the output of HUNTE
 
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import numpy as np
 import data as d
 import os
@@ -10,22 +10,14 @@ import matplotlib
 import matplotlib.gridspec as gridspec
 import pickle
 
-#matplotlib.rcParams.update({'font.size': 18})
+matplotlib.rcParams.update({'font.size': 10})
 
 ## plot HZ occurrence rate histogram
 
 # read data files
 i = 0
-path = '../results'
-for (path, dir, files) in os.walk(path):
-   i += 1
-   if i == 1:
-      break
-      
-files = np.array(files)
-mask = [(i[0] != '0') and (i[0] != '.') for i in files]
+path = '../results_Mdwarf_occrate'
 
-files = files[np.where(mask)]
 
 Rp_lim = [0.5,5e0]
 flux_lim = [0.1,10e0]
@@ -34,91 +26,437 @@ Rp_grid = 10e0**np.linspace(np.log10(Rp_lim[0]),np.log10(Rp_lim[1]),num = nr_bin
 flux_grid = 10e0**np.linspace(np.log10(flux_lim[0]),np.log10(flux_lim[1]),num = nr_bin+1)
 
 
+# # for the occurrence rate figure (fig.5 in the paper, and for save_data_M_dwarf_occrate.dat)
+# Rp_lim = [0.5,5e0]
+# flux_lim = [0.1,10e0]
+# nr_bin = 18
+# Rp_grid = 10e0**np.linspace(np.log10(Rp_lim[0]),np.log10(Rp_lim[1]),num = nr_bin+1)
+# flux_grid = 10e0**np.linspace(np.log10(flux_lim[0]),np.log10(flux_lim[1]),num = nr_bin+1)
+#
+
+
 ## use this if files are read for the first time:
+#
+# for (path, dir, files) in os.walk(path):
+#    i += 1
+#    if i == 1:
+#       break
+#
+# files = np.array(files)
+# mask = [(i[0] != '0') and (i[0] != '.') for i in files]
+#
+# files = files[np.where(mask)]
+#
+#
+# # arrays to store stuff
+# Mp_dist = []
+# atm_dist = []
+# Psurf_dist = []
+# alb_dist = []
+# relhum_dist = []
+# N2_CO2_dist = []
+#
+# HZ_occur = []
+# rock_occur = []
+# SE_occur = []
+# non_HZ_occur = []
+#
+#
+# # for plotting the Rp and flux distributions
+# planet_total = np.zeros([len(files),nr_bin,nr_bin])
+# habi_total = np.zeros([len(files),nr_bin,nr_bin])
+# Rp_dist = np.zeros([len(files),nr_bin])
+# Rp_habi = np.zeros([len(files),nr_bin])
+# flux_dist = np.zeros([len(files),nr_bin])
+# flux_habi = np.zeros([len(files),nr_bin])
+#
+# jj = 0
+#
+# for i in files:
+#    print i
+#    file = open(path+'/'+i,'r')
+#    lines = file.readlines()
+#
+#    line = lines[0]
+#    line_split = line.split(',')
+#    Mp_dist = np.append(Mp_dist,line_split[0])
+#    atm_dist = np.append(atm_dist,line_split[1])
+#    Psurf_dist = np.append(Psurf_dist,line_split[2])
+#    alb_dist = np.append(alb_dist,line_split[3])
+#    relhum_dist = np.append(relhum_dist,line_split[4])
+#    N2_CO2_dist = np.append(N2_CO2_dist,line_split[5][:-1])
+#
+#    f_occur = float(lines[2])
+#    n_total = float(lines[3])
+#    n_rocky = float(lines[4])
+#    n_HZ = float(lines[5])
+#
+#    HZ_occur = np.append(HZ_occur,n_HZ/n_total * f_occur)
+#
+#    for j in lines[6:]:
+#       line_split = j.split(' ')
+#       Rp = float(line_split[2])
+#       flux = float(line_split[1])
+#       habi = line_split[11]
+#       indx_Rp = bisect_left(Rp_grid,Rp) - 1
+#       indx_flux = bisect_left(flux_grid,flux) - 1
+#       if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
+#          if indx_flux >= 0 and indx_flux <= nr_bin-1:
+#             planet_total[jj,indx_Rp,indx_flux] = planet_total[jj,indx_Rp,indx_flux] + 1
+#             Rp_dist[jj,indx_Rp] = Rp_dist[jj,indx_Rp] + 1
+#             flux_dist[jj,indx_flux] = flux_dist[jj,indx_flux] + 1
+#             if habi[0:2] == 'ye':
+#                habi_total[jj,indx_Rp,indx_flux] = habi_total[jj,indx_Rp,indx_flux] + 1
+#                Rp_habi[jj,indx_Rp] = Rp_habi[jj,indx_Rp] + 1
+#                flux_habi[jj,indx_flux] = flux_habi[jj,indx_flux] + 1
+#
+#    file.close()
+#    jj = jj + 1
+#
+#
+# # dump all arrays so I don't need to read them again in the future
+# to_save = [Mp_dist,atm_dist,atm_dist,Psurf_dist,alb_dist,relhum_dist,N2_CO2_dist,HZ_occur,planet_total,Rp_dist,flux_dist,habi_total,Rp_habi,flux_habi,n_total,f_occur]
+# file = open('../data/save_data_'+path[11:]+'.dat','w')
+# pickle.dump(to_save,file)
+# file.close()
+#
+#
 
-# arrays to store stuff
-Mp_dist = []
-atm_dist = []
-Psurf_dist = []
-alb_dist = []
-relhum_dist = []
-N2_CO2_dist = []
+## use this, if files were read once already.
 
-HZ_occur = []
-rock_occur = []
-SE_occur = []
-non_HZ_occur = []
+# read pickle file:
 
-
-# for plotting the Rp and flux distributions
-planet_total = np.zeros([len(files),nr_bin,nr_bin])
-habi_total = np.zeros([len(files),nr_bin,nr_bin])
-Rp_dist = np.zeros([len(files),nr_bin])
-Rp_habi = np.zeros([len(files),nr_bin])
-flux_dist = np.zeros([len(files),nr_bin])
-flux_habi = np.zeros([len(files),nr_bin])
-
-jj = 0
-
-for i in files:
-   print i
-   file = open('../results/'+i,'r')
-   lines = file.readlines()
-   
-   line = lines[0]
-   line_split = line.split(',')
-   Mp_dist = np.append(Mp_dist,line_split[0])
-   atm_dist = np.append(atm_dist,line_split[1])
-   Psurf_dist = np.append(Psurf_dist,line_split[2])
-   alb_dist = np.append(alb_dist,line_split[3])
-   relhum_dist = np.append(relhum_dist,line_split[4])
-   N2_CO2_dist = np.append(N2_CO2_dist,line_split[5][:-1])
-   
-   f_occur = float(lines[2])
-   n_total = float(lines[3])
-   n_rocky = float(lines[4])
-   n_HZ = float(lines[5])
-   
-   HZ_occur = np.append(HZ_occur,n_HZ/n_total * f_occur)
-   
-   for j in lines[6:]:
-      line_split = j.split(' ')
-      Rp = float(line_split[2])
-      flux = float(line_split[1])
-      habi = line_split[11]
-      indx_Rp = bisect_left(Rp_grid,Rp) - 1
-      indx_flux = bisect_left(flux_grid,flux) - 1
-      if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
-         if indx_flux >= 0 and indx_flux <= nr_bin-1:
-            planet_total[jj,indx_Rp,indx_flux] = planet_total[jj,indx_Rp,indx_flux] + 1
-            Rp_dist[jj,indx_Rp] = Rp_dist[jj,indx_Rp] + 1 
-            flux_dist[jj,indx_flux] = flux_dist[jj,indx_flux] + 1 
-            if habi[0:2] == 'ye':
-               habi_total[jj,indx_Rp,indx_flux] = habi_total[jj,indx_Rp,indx_flux] + 1
-               Rp_habi[jj,indx_Rp] = Rp_habi[jj,indx_Rp] + 1 
-               flux_habi[jj,indx_flux] = flux_habi[jj,indx_flux] + 1 
-      
-   file.close()
-   jj = jj + 1
-   
-   
-# dump all arrays so I don't need to read them again in the future
-to_save = [Mp_dist,atm_dist,atm_dist,Psurf_dist,alb_dist,relhum_dist,N2_CO2_dist,HZ_occur,planet_total,Rp_dist,flux_dist,habi_total,Rp_habi,flux_habi,n_total,f_occur]
-file = open('../data/save_data.dat','w')
-pickle.dump(to_save,file)
+#file = open('../data/save_data.dat','r')
+file = open('../data/save_data_'+path[11:]+'.dat','r')
+[Mp_dist,atm_dist,atm_dist,Psurf_dist,alb_dist,relhum_dist,N2_CO2_dist,HZ_occur,planet_total,Rp_dist,flux_dist,habi_total,Rp_habi,flux_habi,n_total,f_occur] = pickle.load(file)
 file.close()
 
 
-
-## use this, if files were read once already.
-# 
-# # read pickle file:
-# file = open('../data/save_data.dat','r')
-# [Mp_dist,atm_dist,atm_dist,Psurf_dist,alb_dist,relhum_dist,N2_CO2_dist,HZ_occur,planet_total,Rp_dist,flux_dist,habi_total,Rp_habi,flux_habi,n_total,f_occur] = pickle.load(file)
-# file.close()
-# 
-
 ## plot occurrence rate as a function of Rp and flux
+
+## just the 2D HZ plot:
+
+to_plot = np.mean(habi_total,axis=0) / np.mean(planet_total,axis=0)
+to_plot[np.mean(planet_total,axis=0) == 0e0] = 0e0
+
+#to_plot = np.min(habi_total,axis=0) / np.min(planet_total,axis=0)
+#to_plot[np.mean(planet_total,axis=0) == 0e0] = 0e0
+#print np.max(habi_total,axis=0)
+
+fig = plt.figure(figsize = [5,4])
+
+
+plt.loglog()
+plt.hot()
+plt.ylabel('planet radius [R$_\oplus$]')
+plt.xlabel('incoming stellar flux [sol. constant]')
+
+plt.tick_params(axis='both',which='both',direction='out')
+plt.tick_params(length=5,width=2,which='major')
+plt.tick_params(length=4,width=2,which='minor')
+
+plt.axis([flux_grid.min(),flux_grid.max(),Rp_grid.min(),Rp_grid.max()])
+plt.pcolormesh(flux_grid,Rp_grid,to_plot,vmin=0,vmax=0.4)
+
+plt.text(0.02,4,'HZ around M dwarfs',color = 'w')
+
+cbaxes = fig.add_axes([0.9, 0.2, 0.03, 0.72]) # left, bottom, width, height
+CB = plt.colorbar(cax=cbaxes)
+CB.ax.yaxis.set_ticks_position('left')
+CB.set_label('average HZ probability',color='w',labelpad=-52)
+cbytick_obj = plt.getp(CB.ax.axes, 'yticklabels')
+plt.setp(cbytick_obj, color='w')
+
+plt.tight_layout(w_pad=0, h_pad=0)
+
+
+plt.savefig('../figs/habi_fraction_Rp_flux_'+path[11:]+'.pdf')
+plt.close()
+
+
+
+
+## just the marginalized functions
+
+fig = plt.figure(figsize = [5,4])
+gs = gridspec.GridSpec(2, 1)
+
+
+# radius plot
+ax1 = plt.subplot(gs[0,0])
+to_plot = Rp_habi / Rp_dist
+to_plot[Rp_dist == 0e0] = 0e0
+
+plt.xlabel('planet radius [R$_\oplus$]')
+plt.ylabel('HZ probability')
+ax1.semilogx()
+plt.axis([Rp_lim[0],Rp_lim[1],0e0,1e0])
+
+
+# min and max errors
+yerrmin = np.min(to_plot,axis=0)
+yerrmax = np.max(to_plot,axis=0)
+ax1.bar(Rp_grid[:-1],yerrmax,width = Rp_grid[1:]-Rp_grid[:-1],bottom = 0e0,color='#FFF5EE',edgecolor='k')
+
+
+# 25 and 75 percentiles
+yerr25 = np.percentile(to_plot,25,axis=0)
+yerr75 = np.percentile(to_plot,75,axis=0)
+
+ax1.errorbar(10e0**((np.log10(Rp_grid[:-1])+np.log10(Rp_grid[1:]))/2e0),np.mean(to_plot,axis=0), yerr=[np.mean(to_plot,axis=0)-yerr25,yerr75-np.mean(to_plot,axis=0)],fmt='ko',capthick=2)
+#plt.vlines([1.5,0.85,0.23, 0.2],[0e0,0e0,0e0,0e0],[1e0,1e0,1e0,1e0],colors = ['r','g','g','b'],linewidth=3,zorder=20)
+#plt.vlines([0.85,0.23],[0e0,0e0],[1e0,1e0],colors = ['g','g'],linewidth=2,zorder=20)
+#plt.hlines([0e0,1e0,0e0],[0.1e0,0.23,0.85],[0.23,0.85,10e0],colors = ['g','g'],linewidth=2,zorder=20)
+#ax1.bar(0.23,1e0,width=0.85-0.23,bottom=0,color='g',alpha=0.2)
+
+plt.tight_layout(w_pad=0, h_pad=0.2)
+plt.tick_params(length=5,width=1.5,which='major')
+plt.tick_params(length=4,width=1.5,which='minor')
+
+yerrmin = np.min(to_plot,axis=0)
+yerrmax = np.max(to_plot,axis=0)
+
+
+# flux plot
+ax2 = plt.subplot(gs[1,0])
+to_plot = flux_habi / flux_dist
+to_plot[flux_dist == 0e0] = 0e0
+
+plt.xlabel('incoming stellar flux [sol. constant]')
+plt.ylabel('HZ probability')
+plt.axis([flux_lim[0],flux_lim[1],0e0,1e0])
+ax2.semilogx()
+# min and max errors
+yerrmin = np.min(to_plot,axis=0)
+yerrmax = np.max(to_plot,axis=0)
+ax2.bar(flux_grid[:-1],yerrmax,width = flux_grid[1:]-flux_grid[:-1],bottom = 0e0,color='#FFF5EE',edgecolor='k')
+
+# 25 and 75 percentiles
+yerr25 = np.percentile(to_plot,25,axis=0)
+yerr75 = np.percentile(to_plot,75,axis=0)
+
+ax2.errorbar(10e0**((np.log10(flux_grid[:-1])+np.log10(flux_grid[1:]))/2e0),np.mean(to_plot,axis=0), yerr=[np.mean(to_plot,axis=0)-yerr25,yerr75-np.mean(to_plot,axis=0)],fmt='ko',capthick=2)
+#plt.vlines([1.5,0.85,0.23, 0.2],[0e0,0e0,0e0,0e0],[1e0,1e0,1e0,1e0],colors = ['r','g','g','b'],linewidth=3,zorder=20)
+plt.vlines([0.85,0.23],[0e0,0e0],[0.53,0.53],colors = ['g','g'],linewidth=2,zorder=20)
+plt.hlines([0e0,0.53,0e0],[0.01e0,0.23,0.85],[0.23,0.85,10e0],colors = ['g','g'],linewidth=2,zorder=20)
+ax2.bar(0.23,0.53,width=0.85-0.23,bottom=0,color='g',alpha=0.2)
+
+plt.tight_layout(w_pad=0, h_pad=0.2)
+plt.tick_params(length=5,width=1.5,which='major')
+plt.tick_params(length=4,width=1.5,which='minor')
+
+
+#plt.show()
+
+plt.savefig('../figs/habi_fraction_occurence_rate.pdf')
+plt.close()
+
+
+
+
+matplotlib.rcParams.update({'font.size': 18})
+
+## study the influence of parameters on the HZ
+# todo: update distributions if necessary based on MC_int.py
+planet_mass = ['Mplanet_gauss_opt_sigma6','Mplanet_gauss_norm_sigma6','Mplanet_gauss_pes_sigma6','Mplanet_gauss_opt_sigma3','Mplanet_gauss_norm_sigma3','Mplanet_gauss_pes_sigma3']
+atmosphere = ['atm_type_all','atm_type_N2_CO2','atm_type_H2','atm_type_N2','atm_type_CO2']
+surf_pressure = ['Psurf_log_min1e0','Psurf_log_min1e2','Psurf_log_min1e4','Psurf_lognorm_1e4','Psurf_lognorm_1e5','Psurf_lognorm_1e6','Psurf_lognorm_1e7']
+surf_albedo = ['alb_surf_uniform','alb_surf_normal','alb_surf_lognormal']
+rel_humidity = ['relhum_log','relhum_lin','relhum_lognorm']
+N2_CO2_mix_rat = ['atm_N2_CO2_log','atm_N2_CO2_lin','atm_N2_CO2_lognorm']
+
+
+dbar = 0.03
+dwidth = 0.03
+dgroup = 0.02
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+heights = [np.average(HZ_occur[Psurf_dist == surf_pressure[0]]),np.average(HZ_occur[Psurf_dist == surf_pressure[1]]),np.average(HZ_occur[Psurf_dist == surf_pressure[2]]),np.average(HZ_occur[Psurf_dist == surf_pressure[3]]),np.average(HZ_occur[Psurf_dist == surf_pressure[4]]),np.average(HZ_occur[Psurf_dist == surf_pressure[5]]),np.average(HZ_occur[Psurf_dist == surf_pressure[6]])]
+plt.bar([0e0*dwidth + 0e0*dbar + 0e0*dgroup,0e0*dwidth + 1e0*dbar + 0e0*dgroup,0e0*dwidth + 2e0*dbar + 0e0*dgroup,0e0*dwidth + 3e0*dbar + 0e0*dgroup,0e0*dwidth + 4e0*dbar + 0e0*dgroup,0e0*dwidth + 5e0*dbar + 0e0*dgroup,0e0*dwidth + 6e0*dbar + 0e0*dgroup],heights,[dwidth,dwidth,dwidth,dwidth,dwidth,dwidth,dwidth],color='#FFF5EE')
+
+heights = [np.average(HZ_occur[atm_dist == atmosphere[0]]),np.average(HZ_occur[atm_dist == atmosphere[1]]),np.average(HZ_occur[atm_dist == atmosphere[2]]),np.average(HZ_occur[atm_dist == atmosphere[3]]),np.average(HZ_occur[atm_dist == atmosphere[4]])]
+plt.bar([dwidth+6e0*dbar+dgroup,dwidth+7e0*dbar+dgroup,dwidth+8e0*dbar+dgroup,dwidth+9e0*dbar+dgroup,dwidth+10e0*dbar+dgroup],heights,[dwidth,dwidth,dwidth,dwidth,dwidth],color='#FFF5EE')
+
+heights = [np.average(HZ_occur[Mp_dist == planet_mass[0]]),np.average(HZ_occur[Mp_dist == planet_mass[1]]),np.average(HZ_occur[Mp_dist == planet_mass[2]]),np.average(HZ_occur[Mp_dist == planet_mass[3]]),np.average(HZ_occur[Mp_dist == planet_mass[4]]),np.average(HZ_occur[Mp_dist == planet_mass[5]])]
+plt.bar([2e0*dwidth + 10e0*dbar + 2e0*dgroup, 2e0*dwidth + 11e0*dbar + 2e0*dgroup,2e0*dwidth + 12e0*dbar + 2e0*dgroup,2e0*dwidth + 13e0*dbar + 2e0*dgroup,2e0*dwidth + 14e0*dbar + 2e0*dgroup,2e0*dwidth + 15e0*dbar + 2e0*dgroup],heights,[dwidth,dwidth,dwidth,dwidth,dwidth,dwidth],color='#FFF5EE')
+
+heights = [np.average(HZ_occur[N2_CO2_dist == N2_CO2_mix_rat[0]]),np.average(HZ_occur[N2_CO2_dist == N2_CO2_mix_rat[1]]),np.average(HZ_occur[N2_CO2_dist == N2_CO2_mix_rat[2]])]
+plt.bar([3e0*dwidth + 15e0*dbar + 3e0*dgroup,3e0*dwidth + 16e0*dbar + 3e0*dgroup,3e0*dwidth + 17e0*dbar + 3e0*dgroup],heights,[dwidth,dwidth,dwidth],color='#FFF5EE')
+
+
+heights = [np.average(HZ_occur[relhum_dist == rel_humidity[0]]),np.average(HZ_occur[relhum_dist == rel_humidity[1]]),np.average(HZ_occur[relhum_dist == rel_humidity[2]])]
+plt.bar([4e0*dwidth + 17e0*dbar + 4e0*dgroup,4e0*dwidth + 18e0*dbar + 4e0*dgroup,4e0*dwidth + 19e0*dbar + 4e0*dgroup],heights,[dwidth,dwidth,dwidth],color='#FFF5EE')
+
+heights = [np.average(HZ_occur[alb_dist == surf_albedo[0]]),np.average(HZ_occur[alb_dist == surf_albedo[1]]),np.average(HZ_occur[alb_dist == surf_albedo[2]])]
+plt.bar([5e0*dwidth + 19e0*dbar + 5e0*dgroup,5e0*dwidth + 20e0*dbar + 5e0*dgroup,5e0*dwidth + 21e0*dbar + 5e0*dgroup],heights,[dwidth,dwidth,dwidth],color='#FFF5EE')
+
+
+
+plt.xticks((3e0*dbar,dwidth+7e0*dbar+dgroup+dwidth/2e0,2e0*dwidth + 12e0*dbar + 2e0*dgroup+dwidth/2e0,3e0*dwidth + 16e0*dbar + 3e0*dgroup+dwidth/2e0,4e0*dwidth + 18e0*dbar + 4e0*dgroup+dwidth/2e0,5e0*dwidth + 20e0*dbar + 5e0*dgroup+dwidth/2e0),('Surface pressure','Atm. type','Planet mass','N$_2$/CO$_2$ mix. rat.','Rel. hum.','Surf. albedo'),rotation = 30)
+plt.tight_layout(w_pad=0, h_pad=0)
+
+
+
+plt.text(0e0*dwidth+0e0*dbar+0e0*dgroup+dwidth/2,0.005,'PDF Sp1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(0e0*dwidth+1e0*dbar+0e0*dgroup+dwidth/2,0.005,'PDF Sp2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(0e0*dwidth+2e0*dbar+0e0*dgroup+dwidth/2,0.005,'PDF Sp3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(0e0*dwidth+3e0*dbar+0e0*dgroup+dwidth/2,0.005,'PDF Sp4',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(0e0*dwidth+4e0*dbar+0e0*dgroup+dwidth/2,0.005,'PDF Sp5',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(0e0*dwidth+5e0*dbar+0e0*dgroup+dwidth/2,0.005,'PDF Sp6',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(0e0*dwidth+6e0*dbar+0e0*dgroup+dwidth/2,0.005,'PDF Sp7',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+
+plt.text(dwidth+6e0*dbar+dgroup+dwidth/2,0.005,'PDF At1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dwidth+7e0*dbar+dgroup+dwidth/2,0.005,'PDF At2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dwidth+8e0*dbar+dgroup+dwidth/2,0.005,'PDF At3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dwidth+9e0*dbar+dgroup+dwidth/2,0.005,'PDF At4',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dwidth+10e0*dbar+dgroup+dwidth/2,0.005,'PDF At5',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+
+plt.text(2e0*dwidth+ 10e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Pm1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+ 11e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Pm2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+ 12e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Pm3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+ 13e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Pm4',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+ 14e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Pm5',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+ 15e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Pm6',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+
+plt.text(3*dwidth+15e0*dbar+3*dgroup+dwidth/2,0.005,'PDF mr1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(3*dwidth+16e0*dbar+3*dgroup+dwidth/2,0.005,'PDF mr2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(3*dwidth+17e0*dbar+3*dgroup+dwidth/2,0.005,'PDF mr3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+
+plt.text(4*dwidth+17e0*dbar+4*dgroup+dwidth/2,0.005,'PDF Rh1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(4*dwidth+18e0*dbar+4*dgroup+dwidth/2,0.005,'PDF Rh2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(4*dwidth+19e0*dbar+4*dgroup+dwidth/2,0.005,'PDF Rh3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+
+plt.text(5*dwidth+19e0*dbar+5*dgroup+dwidth/2,0.005,'PDF Sa1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(5*dwidth+20e0*dbar+5*dgroup+dwidth/2,0.005,'PDF Sa2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(5*dwidth+21e0*dbar+5*dgroup+dwidth/2,0.005,'PDF Sa3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+
+
+plt.hlines(np.average(HZ_occur),0e0,5e0*dwidth + 21e0*dbar + 5e0*dgroup+dwidth,linewidth=3)
+plt.ylabel('average occurrence rate')
+plt.axis([0e0,5e0*dwidth + 21e0*dbar + 5e0*dgroup+dwidth,0e0,0.2])
+plt.tick_params(length=5,width=2,which='major')
+plt.tick_params(length=4,width=2,which='minor')
+plt.tight_layout(w_pad=0, h_pad=0)
+
+plt.savefig('../figs/para_imp.pdf')
+plt.close()
+
+print np.max(HZ_occur),np.min(HZ_occur),np.average(HZ_occur)
+
+stop
+
+
+
+fig = plt.figure(figsize = [8,4])
+gs = gridspec.GridSpec(1, 2)
+gs21 = gridspec.GridSpecFromSubplotSpec(2,1,subplot_spec=gs[1],hspace=0.4)
+
+# contour figure
+ax0 = plt.subplot(gs[0,0])
+to_plot = np.mean(habi_total,axis=0) / np.mean(planet_total,axis=0)
+to_plot[np.mean(planet_total,axis=0) == 0e0] = 0e0
+
+#to_plot = np.min(habi_total,axis=0) / np.min(planet_total,axis=0)
+#to_plot[np.mean(planet_total,axis=0) == 0e0] = 0e0
+#print np.max(habi_total,axis=0)
+
+ax0 = plt.loglog()
+plt.hot()
+plt.ylabel('planet radius [R$_\oplus$]')
+plt.xlabel('incoming stellar flux [sol. constant]')
+
+plt.tick_params(axis='both',which='both',direction='out')
+plt.tick_params(length=5,width=2,which='major')
+plt.tick_params(length=4,width=2,which='minor')
+
+ax0 = plt.axis([flux_grid.min(),flux_grid.max(),Rp_grid.min(),Rp_grid.max()])
+ax0 = plt.pcolormesh(flux_grid,Rp_grid,to_plot,vmin=0,vmax=0.4)
+
+cbaxes = fig.add_axes([0.47, 0.2, 0.02, 0.72]) # left, bottom, width, height
+CB = plt.colorbar(ax0,cax=cbaxes)
+CB.ax.yaxis.set_ticks_position('left')
+CB.set_label('average HZ probability',color='w',labelpad=-52)
+cbytick_obj = plt.getp(CB.ax.axes, 'yticklabels')
+plt.setp(cbytick_obj, color='w')
+
+
+
+# radius plot
+ax1 = plt.subplot(gs21[0,0])
+to_plot = Rp_habi / Rp_dist
+to_plot[Rp_dist == 0e0] = 0e0
+
+plt.xlabel('planet radius [R$_\oplus$]')
+plt.ylabel('HZ probability')
+ax1.semilogx()
+plt.axis([Rp_lim[0],Rp_lim[1],0e0,1e0])
+
+
+# min and max errors
+yerrmin = np.min(to_plot,axis=0)
+yerrmax = np.max(to_plot,axis=0)
+ax1.bar(Rp_grid[:-1],yerrmax,width = Rp_grid[1:]-Rp_grid[:-1],bottom = 0e0,color='#FFF5EE',edgecolor='k')
+
+
+# 25 and 75 percentiles
+yerr25 = np.percentile(to_plot,25,axis=0)
+yerr75 = np.percentile(to_plot,75,axis=0)
+
+ax1.errorbar(10e0**((np.log10(Rp_grid[:-1])+np.log10(Rp_grid[1:]))/2e0),np.mean(to_plot,axis=0), yerr=[np.mean(to_plot,axis=0)-yerr25,yerr75-np.mean(to_plot,axis=0)],fmt='ko',capthick=2)
+#plt.vlines([1.5,0.85,0.23, 0.2],[0e0,0e0,0e0,0e0],[1e0,1e0,1e0,1e0],colors = ['r','g','g','b'],linewidth=3,zorder=20)
+#plt.vlines([0.85,0.23],[0e0,0e0],[1e0,1e0],colors = ['g','g'],linewidth=2,zorder=20)
+#plt.hlines([0e0,1e0,0e0],[0.1e0,0.23,0.85],[0.23,0.85,10e0],colors = ['g','g'],linewidth=2,zorder=20)
+#ax1.bar(0.23,1e0,width=0.85-0.23,bottom=0,color='g',alpha=0.2)
+
+plt.tight_layout(w_pad=0, h_pad=0.2)
+plt.tick_params(length=5,width=1.5,which='major')
+plt.tick_params(length=4,width=1.5,which='minor')
+
+yerrmin = np.min(to_plot,axis=0)
+yerrmax = np.max(to_plot,axis=0)
+
+
+# flux plot
+ax2 = plt.subplot(gs21[1,0])
+to_plot = flux_habi / flux_dist
+to_plot[flux_dist == 0e0] = 0e0
+
+plt.xlabel('incoming stellar flux [sol. constant]')
+plt.ylabel('HZ probability')
+plt.axis([flux_lim[0],flux_lim[1],0e0,1e0])
+ax2.semilogx()
+# min and max errors
+yerrmin = np.min(to_plot,axis=0)
+yerrmax = np.max(to_plot,axis=0)
+ax2.bar(flux_grid[:-1],yerrmax,width = flux_grid[1:]-flux_grid[:-1],bottom = 0e0,color='#FFF5EE',edgecolor='k')
+
+# 25 and 75 percentiles
+yerr25 = np.percentile(to_plot,25,axis=0)
+yerr75 = np.percentile(to_plot,75,axis=0)
+
+ax2.errorbar(10e0**((np.log10(flux_grid[:-1])+np.log10(flux_grid[1:]))/2e0),np.mean(to_plot,axis=0), yerr=[np.mean(to_plot,axis=0)-yerr25,yerr75-np.mean(to_plot,axis=0)],fmt='ko',capthick=2)
+#plt.vlines([1.5,0.85,0.23, 0.2],[0e0,0e0,0e0,0e0],[1e0,1e0,1e0,1e0],colors = ['r','g','g','b'],linewidth=3,zorder=20)
+plt.vlines([0.85,0.23],[0e0,0e0],[0.53,0.53],colors = ['g','g'],linewidth=2,zorder=20)
+plt.hlines([0e0,0.53,0e0],[0.01e0,0.23,0.85],[0.23,0.85,10e0],colors = ['g','g'],linewidth=2,zorder=20)
+ax2.bar(0.23,0.53,width=0.85-0.23,bottom=0,color='g',alpha=0.2)
+
+plt.tight_layout(w_pad=0, h_pad=0.2)
+plt.tick_params(length=5,width=1.5,which='major')
+plt.tick_params(length=4,width=1.5,which='minor')
+
+
+#plt.show()
+
+plt.savefig('../figs/habi_fraction_Rp_flux_'+path[11:]+'.pdf')
+plt.close()
+
+
+
+
+stop
+
 fig = plt.figure()
 gs = gridspec.GridSpec(2, 2, width_ratios=[1, 3],height_ratios=[3,1])
 
@@ -151,7 +489,7 @@ plt.tick_params(length=4,width=1.5,which='minor')
 
 # flux-Rp distribution
 ax1 = plt.subplot(gs[0,1])
-to_plot = np.mean(habi_total,axis=0) / np.mean(planet_total,axis=0) 
+to_plot = np.mean(habi_total,axis=0) / np.mean(planet_total,axis=0)
 to_plot[np.mean(planet_total,axis=0) == 0e0] = 0e0
 
 #to_plot = np.min(habi_total,axis=0) / np.min(planet_total,axis=0)
@@ -167,8 +505,8 @@ plt.tick_params(length=5,width=2,which='major')
 plt.tick_params(length=4,width=2,which='minor')
 
 ax1 = plt.axis([flux_grid.min(),flux_grid.max(),Rp_grid.min(),Rp_grid.max()])
-ax1 = plt.pcolormesh(flux_grid,Rp_grid,to_plot,vmin=0,vmax=1) 
-cbaxes = fig.add_axes([0.93, 0.42, 0.028, 0.53]) 
+ax1 = plt.pcolormesh(flux_grid,Rp_grid,to_plot,vmin=0,vmax=0.4)
+cbaxes = fig.add_axes([0.93, 0.42, 0.028, 0.53])
 CB = plt.colorbar(ax1,cax=cbaxes)
 CB.ax.yaxis.set_ticks_position('left')
 CB.set_label('average fraction of HZ planets',color='w',labelpad=-62)
@@ -198,7 +536,11 @@ yerr25 = np.percentile(to_plot,25,axis=0)
 yerr75 = np.percentile(to_plot,75,axis=0)
 
 ax3.errorbar(10e0**((np.log10(flux_grid[:-1])+np.log10(flux_grid[1:]))/2e0),np.mean(to_plot,axis=0), yerr=[np.mean(to_plot,axis=0)-yerr25,yerr75-np.mean(to_plot,axis=0)],fmt='ko',capthick=2)
-plt.vlines([1.5,0.85,0.23, 0.2],[0e0,0e0,0e0,0e0],[1e0,1e0,1e0,1e0],colors = ['r','g','g','b'],linewidth=3,zorder=20)
+#plt.vlines([1.5,0.85,0.23, 0.2],[0e0,0e0,0e0,0e0],[1e0,1e0,1e0,1e0],colors = ['r','g','g','b'],linewidth=3,zorder=20)
+plt.vlines([0.85,0.23],[0e0,0e0],[1e0,1e0],colors = ['g','g'],linewidth=2,zorder=20)
+plt.hlines([0e0,1e0,0e0],[0.1e0,0.23,0.85],[0.23,0.85,10e0],colors = ['g','g'],linewidth=2,zorder=20)
+ax3.bar(0.23,1e0,width=0.85-0.23,bottom=0,color='g',alpha=0.2)
+
 plt.tight_layout(w_pad=0, h_pad=0.2)
 plt.tick_params(length=5,width=1.5,which='major')
 plt.tick_params(length=4,width=1.5,which='minor')
@@ -206,6 +548,8 @@ plt.tick_params(length=4,width=1.5,which='minor')
 plt.savefig('../figs/habi_fraction_Rp_flux.pdf')
 plt.close()
 
+
+stop
 
 ## flux and Rp distributions for the most optimistic scenario
 print files[HZ_occur == np.max(HZ_occur)][0]
@@ -243,33 +587,33 @@ flux_habi = np.zeros([nr_bin])
 
 j = 0
 for i in lines[6:]:
-   line_split = i.split(' ')
-   
-   all_MS[j] = float(line_split[0])
-   all_flux[j] = float(line_split[1])
-   all_Rp[j] = float(line_split[2])
-   all_Mp[j] = float(line_split[3])
-   all_atmtype[j] = line_split[4]
-   all_Psurf[j] = float(line_split[5])
-   all_Tsurf[j] = float(line_split[6])
-   all_alb[j] = float(line_split[7])
-   all_relhum[j] = float(line_split[8])
-   all_CO2[j] = float(line_split[9])
-   all_N2[j] = float(line_split[10])
-   all_habi[j] = line_split[11]
-   
-   indx_Rp = bisect_left(Rp_grid,all_Rp[j]) - 1
-   indx_flux = bisect_left(flux_grid,all_flux[j]) - 1
-   if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
-      if indx_flux >= 0 and indx_flux <= nr_bin-1:
-         planet_total[indx_Rp,indx_flux] = planet_total[indx_Rp,indx_flux] + 1
-         Rp_dist[indx_Rp] = Rp_dist[indx_Rp] + 1 
-         flux_dist[indx_flux] = flux_dist[indx_flux] + 1 
-         if all_habi[j] == 'ye':
-            habi_total[indx_Rp,indx_flux] = habi_total[indx_Rp,indx_flux] + 1
-            Rp_habi[indx_Rp] = Rp_habi[indx_Rp] + 1 
-            flux_habi[indx_flux] = flux_habi[indx_flux] + 1 
-   j = j + 1
+    line_split = i.split(' ')
+        
+        all_MS[j] = float(line_split[0])
+            all_flux[j] = float(line_split[1])
+                all_Rp[j] = float(line_split[2])
+                    all_Mp[j] = float(line_split[3])
+                        all_atmtype[j] = line_split[4]
+                            all_Psurf[j] = float(line_split[5])
+                                all_Tsurf[j] = float(line_split[6])
+                                    all_alb[j] = float(line_split[7])
+                                        all_relhum[j] = float(line_split[8])
+                                            all_CO2[j] = float(line_split[9])
+                                                all_N2[j] = float(line_split[10])
+                                                    all_habi[j] = line_split[11]
+                                                        
+                                                        indx_Rp = bisect_left(Rp_grid,all_Rp[j]) - 1
+                                                            indx_flux = bisect_left(flux_grid,all_flux[j]) - 1
+                                                                if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
+                                                                    if indx_flux >= 0 and indx_flux <= nr_bin-1:
+                                                                        planet_total[indx_Rp,indx_flux] = planet_total[indx_Rp,indx_flux] + 1
+                                                                            Rp_dist[indx_Rp] = Rp_dist[indx_Rp] + 1
+                                                                                flux_dist[indx_flux] = flux_dist[indx_flux] + 1
+                                                                                    if all_habi[j] == 'ye':
+                                                                                        habi_total[indx_Rp,indx_flux] = habi_total[indx_Rp,indx_flux] + 1
+                                                                                            Rp_habi[indx_Rp] = Rp_habi[indx_Rp] + 1
+                                                                                                flux_habi[indx_flux] = flux_habi[indx_flux] + 1
+                                                                                                    j = j + 1
 
 
 # flux-Rp distribution
@@ -285,9 +629,9 @@ plt.tick_params(length=4,width=2,which='minor')
 plt.axis([flux_grid.min(),flux_grid.max(),Rp_grid.min(),Rp_grid.max()])
 plt.xlabel('incoming stellar flux [sol. constant]')
 plt.ylabel('planet radius [R$_\oplus$]')
-CS = plt.pcolormesh(flux_grid,Rp_grid,to_plot,vmin=0,vmax=1) 
+CS = plt.pcolormesh(flux_grid,Rp_grid,to_plot,vmin=0,vmax=1)
 plt.vlines([1.5,0.85,0.23, 0.2],[Rp_grid.min(),Rp_grid.min(),Rp_grid.min(),Rp_grid.min()],[Rp_grid.max(),Rp_grid.max(),Rp_grid.max(),Rp_grid.max()],colors = ['r','g','g','b'],linewidth=4,zorder=20)
-cbaxes = fig.add_axes([0.895, 0.2, 0.04, 0.7]) 
+cbaxes = fig.add_axes([0.895, 0.2, 0.04, 0.7])
 CB = plt.colorbar(CS,cax=cbaxes)
 CB.ax.yaxis.set_ticks_position('left')
 CB.set_label('fraction of HZ planets',color='w',labelpad=-74)
@@ -332,33 +676,33 @@ flux_habi = np.zeros([nr_bin])
 
 j = 0
 for i in lines[6:]:
-   line_split = i.split(' ')
-   
-   all_MS[j] = float(line_split[0])
-   all_flux[j] = float(line_split[1])
-   all_Rp[j] = float(line_split[2])
-   all_Mp[j] = float(line_split[3])
-   all_atmtype[j] = line_split[4]
-   all_Psurf[j] = float(line_split[5])
-   all_Tsurf[j] = float(line_split[6])
-   all_alb[j] = float(line_split[7])
-   all_relhum[j] = float(line_split[8])
-   all_CO2[j] = float(line_split[9])
-   all_N2[j] = float(line_split[10])
-   all_habi[j] = line_split[11]
-   
-   indx_Rp = bisect_left(Rp_grid,all_Rp[j]) - 1
-   indx_flux = bisect_left(flux_grid,all_flux[j]) - 1
-   if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
-      if indx_flux >= 0 and indx_flux <= nr_bin-1:
-         planet_total[indx_Rp,indx_flux] = planet_total[indx_Rp,indx_flux] + 1
-         Rp_dist[indx_Rp] = Rp_dist[indx_Rp] + 1 
-         flux_dist[indx_flux] = flux_dist[indx_flux] + 1 
-         if all_habi[j] == 'ye':
-            habi_total[indx_Rp,indx_flux] = habi_total[indx_Rp,indx_flux] + 1
-            Rp_habi[indx_Rp] = Rp_habi[indx_Rp] + 1 
-            flux_habi[indx_flux] = flux_habi[indx_flux] + 1
-   j = j + 1
+    line_split = i.split(' ')
+        
+        all_MS[j] = float(line_split[0])
+            all_flux[j] = float(line_split[1])
+                all_Rp[j] = float(line_split[2])
+                    all_Mp[j] = float(line_split[3])
+                        all_atmtype[j] = line_split[4]
+                            all_Psurf[j] = float(line_split[5])
+                                all_Tsurf[j] = float(line_split[6])
+                                    all_alb[j] = float(line_split[7])
+                                        all_relhum[j] = float(line_split[8])
+                                            all_CO2[j] = float(line_split[9])
+                                                all_N2[j] = float(line_split[10])
+                                                    all_habi[j] = line_split[11]
+                                                        
+                                                        indx_Rp = bisect_left(Rp_grid,all_Rp[j]) - 1
+                                                            indx_flux = bisect_left(flux_grid,all_flux[j]) - 1
+                                                                if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
+                                                                    if indx_flux >= 0 and indx_flux <= nr_bin-1:
+                                                                        planet_total[indx_Rp,indx_flux] = planet_total[indx_Rp,indx_flux] + 1
+                                                                            Rp_dist[indx_Rp] = Rp_dist[indx_Rp] + 1
+                                                                                flux_dist[indx_flux] = flux_dist[indx_flux] + 1
+                                                                                    if all_habi[j] == 'ye':
+                                                                                        habi_total[indx_Rp,indx_flux] = habi_total[indx_Rp,indx_flux] + 1
+                                                                                            Rp_habi[indx_Rp] = Rp_habi[indx_Rp] + 1
+                                                                                                flux_habi[indx_flux] = flux_habi[indx_flux] + 1
+                                                                                                    j = j + 1
 
 
 # flux-Rp distribution
@@ -374,9 +718,9 @@ plt.tick_params(length=4,width=2,which='minor')
 plt.axis([flux_grid.min(),flux_grid.max(),Rp_grid.min(),Rp_grid.max()])
 plt.xlabel('incoming stellar flux [sol. constant]')
 plt.ylabel('planet radius [R$_\oplus$]')
-CS = plt.pcolormesh(flux_grid,Rp_grid,to_plot,vmin=0,vmax=1) 
+CS = plt.pcolormesh(flux_grid,Rp_grid,to_plot,vmin=0,vmax=1)
 plt.vlines([1.5,0.85,0.23, 0.2],[Rp_grid.min(),Rp_grid.min(),Rp_grid.min(),Rp_grid.min()],[Rp_grid.max(),Rp_grid.max(),Rp_grid.max(),Rp_grid.max()],colors = ['r','g','g','b'],linewidth=4,zorder=20)
-cbaxes = fig.add_axes([0.895, 0.2, 0.04, 0.7]) 
+cbaxes = fig.add_axes([0.895, 0.2, 0.04, 0.7])
 CB = plt.colorbar(CS,cax=cbaxes)
 CB.ax.yaxis.set_ticks_position('left')
 CB.set_label('fraction of HZ planets',color='w',labelpad=-74)
@@ -423,43 +767,43 @@ plt.bar([4e0*dwidth + 17e0*dbar + 4e0*dgroup,4e0*dwidth + 18e0*dbar + 4e0*dgroup
 heights = [np.average(HZ_occur[N2_CO2_dist == N2_CO2_mix_rat[0]]),np.average(HZ_occur[N2_CO2_dist == N2_CO2_mix_rat[1]]),np.average(HZ_occur[N2_CO2_dist == N2_CO2_mix_rat[2]])]
 plt.bar([5e0*dwidth + 19e0*dbar + 5e0*dgroup,5e0*dwidth + 20e0*dbar + 5e0*dgroup,5e0*dwidth + 21e0*dbar + 5e0*dgroup],heights,[dwidth,dwidth,dwidth],color='#FFF5EE')
 
-plt.xticks((3e0*dbar,dwidth+7e0*dbar+dgroup+dwidth/2e0,2e0*dwidth + 12e0*dbar + 2e0*dgroup+dwidth/2e0,3e0*dwidth + 16e0*dbar + 3e0*dgroup+dwidth/2e0,4e0*dwidth + 18e0*dbar + 4e0*dgroup+dwidth/2e0,5e0*dwidth + 20e0*dbar + 5e0*dgroup+dwidth/2e0),('planet mass','atm. type','surface pressure','surf. albedo','rel. hum.','N$_2$/CO$_2$'),rotation = 20)
+plt.xticks((3e0*dbar,dwidth+7e0*dbar+dgroup+dwidth/2e0,2e0*dwidth + 12e0*dbar + 2e0*dgroup+dwidth/2e0,3e0*dwidth + 16e0*dbar + 3e0*dgroup+dwidth/2e0,4e0*dwidth + 18e0*dbar + 4e0*dgroup+dwidth/2e0,5e0*dwidth + 20e0*dbar + 5e0*dgroup+dwidth/2e0),('Planet mass','Atm. type','Surface pressure','Surf. albedo','Rel. hum.','N$_2$/CO$_2$ mix. rat.'),rotation = 20)
 plt.tight_layout(w_pad=0, h_pad=0)
 
 
-plt.text(0e0+dwidth/2,0.005,'PM1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(dbar+dwidth/2,0.005,'PM2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(2e0*dbar+dwidth/2,0.005,'PM3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(3e0*dbar+dwidth/2,0.005,'PM4',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(4e0*dbar+dwidth/2,0.005,'PM5',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(5e0*dbar+dwidth/2,0.005,'PM6',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(0e0+dwidth/2,0.005,'PDF Pm1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dbar+dwidth/2,0.005,'PDF Pm2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dbar+dwidth/2,0.005,'PDF Pm3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(3e0*dbar+dwidth/2,0.005,'PDF Pm4',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(4e0*dbar+dwidth/2,0.005,'PDF Pm5',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(5e0*dbar+dwidth/2,0.005,'PDF Pm6',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
 
-plt.text(dwidth+5e0*dbar+dgroup+dwidth/2,0.005,'AT1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(dwidth+6e0*dbar+dgroup+dwidth/2,0.005,'AT2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(dwidth+7e0*dbar+dgroup+dwidth/2,0.005,'AT3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(dwidth+8e0*dbar+dgroup+dwidth/2,0.005,'AT4',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(dwidth+9e0*dbar+dgroup+dwidth/2,0.005,'AT5',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dwidth+5e0*dbar+dgroup+dwidth/2,0.005,'PDF At1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dwidth+6e0*dbar+dgroup+dwidth/2,0.005,'PDF At2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dwidth+7e0*dbar+dgroup+dwidth/2,0.005,'PDF At3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dwidth+8e0*dbar+dgroup+dwidth/2,0.005,'PDF At4',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(dwidth+9e0*dbar+dgroup+dwidth/2,0.005,'PDF At5',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
 
 
-plt.text(2e0*dwidth+9e0*dbar+2e0*dgroup+dwidth/2,0.005,'SP1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(2e0*dwidth+10e0*dbar+2e0*dgroup+dwidth/2,0.005,'SP2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(2e0*dwidth+11e0*dbar+2e0*dgroup+dwidth/2,0.005,'SP3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(2e0*dwidth+12e0*dbar+2e0*dgroup+dwidth/2,0.005,'SP4',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(2e0*dwidth+13e0*dbar+2e0*dgroup+dwidth/2,0.005,'SP5',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(2e0*dwidth+14e0*dbar+2e0*dgroup+dwidth/2,0.005,'SP6',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(2e0*dwidth+15e0*dbar+2e0*dgroup+dwidth/2,0.005,'SP7',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+9e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Sp1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+10e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Sp2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+11e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Sp3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+12e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Sp4',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+13e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Sp5',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+14e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Sp6',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(2e0*dwidth+15e0*dbar+2e0*dgroup+dwidth/2,0.005,'PDF Sp7',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
 
-plt.text(3*dwidth+15e0*dbar+3*dgroup+dwidth/2,0.005,'SA1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(3*dwidth+16e0*dbar+3*dgroup+dwidth/2,0.005,'SA2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(3*dwidth+17e0*dbar+3*dgroup+dwidth/2,0.005,'SA3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(3*dwidth+15e0*dbar+3*dgroup+dwidth/2,0.005,'PDF Sa1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(3*dwidth+16e0*dbar+3*dgroup+dwidth/2,0.005,'PDF Sa2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(3*dwidth+17e0*dbar+3*dgroup+dwidth/2,0.005,'PDF Sa3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
 
-plt.text(4*dwidth+17e0*dbar+4*dgroup+dwidth/2,0.005,'RH1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(4*dwidth+18e0*dbar+4*dgroup+dwidth/2,0.005,'RH2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(4*dwidth+19e0*dbar+4*dgroup+dwidth/2,0.005,'RH3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(4*dwidth+17e0*dbar+4*dgroup+dwidth/2,0.005,'PDF Rh1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(4*dwidth+18e0*dbar+4*dgroup+dwidth/2,0.005,'PDF Rh2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(4*dwidth+19e0*dbar+4*dgroup+dwidth/2,0.005,'PDF Rh3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
 
-plt.text(5*dwidth+19e0*dbar+5*dgroup+dwidth/2,0.005,'MR1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(5*dwidth+20e0*dbar+5*dgroup+dwidth/2,0.005,'MR2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
-plt.text(5*dwidth+21e0*dbar+5*dgroup+dwidth/2,0.005,'MR3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(5*dwidth+19e0*dbar+5*dgroup+dwidth/2,0.005,'PDF mr1',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(5*dwidth+20e0*dbar+5*dgroup+dwidth/2,0.005,'PDF mr2',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
+plt.text(5*dwidth+21e0*dbar+5*dgroup+dwidth/2,0.005,'PDF mr3',rotation = 90,fontsize = 13,horizontalalignment='center',verticalalignment='bottom')
 
 
 plt.hlines(np.average(HZ_occur),0e0,5e0*dwidth + 21e0*dbar + 5e0*dgroup+dwidth,linewidth=3)
@@ -476,29 +820,29 @@ print np.average(HZ_occur)
 
 print 'planet mass'
 for i in planet_mass:
-   print np.average(HZ_occur[Mp_dist == i])
+    print np.average(HZ_occur[Mp_dist == i])
 
 
 print 'atmosphere'
 for i in atmosphere:
-   print np.average(HZ_occur[atm_dist == i])
+    print np.average(HZ_occur[atm_dist == i])
 
 
 print 'surface pressure'
 for i in surf_pressure:
-   print np.average(HZ_occur[Psurf_dist == i])
-   
+    print np.average(HZ_occur[Psurf_dist == i])
+
 print 'surface albedo'
 for i in surf_albedo:
-   print np.average(HZ_occur[alb_dist == i])
+    print np.average(HZ_occur[alb_dist == i])
 
 print 'relative humidity'
 for i in rel_humidity:
-   print np.average(HZ_occur[relhum_dist == i])
+    print np.average(HZ_occur[relhum_dist == i])
 
 print 'N2 and CO2 mixing ratios'
 for i in N2_CO2_mix_rat:
-   print np.average(HZ_occur[N2_CO2_dist == i])
+    print np.average(HZ_occur[N2_CO2_dist == i])
 
 
 
