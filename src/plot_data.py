@@ -589,31 +589,31 @@ j = 0
 for i in lines[6:]:
     line_split = i.split(' ')
         
-        all_MS[j] = float(line_split[0])
-            all_flux[j] = float(line_split[1])
-                all_Rp[j] = float(line_split[2])
-                    all_Mp[j] = float(line_split[3])
-                        all_atmtype[j] = line_split[4]
-                            all_Psurf[j] = float(line_split[5])
-                                all_Tsurf[j] = float(line_split[6])
-                                    all_alb[j] = float(line_split[7])
-                                        all_relhum[j] = float(line_split[8])
-                                            all_CO2[j] = float(line_split[9])
-                                                all_N2[j] = float(line_split[10])
-                                                    all_habi[j] = line_split[11]
-                                                        
-                                                        indx_Rp = bisect_left(Rp_grid,all_Rp[j]) - 1
-                                                            indx_flux = bisect_left(flux_grid,all_flux[j]) - 1
-                                                                if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
-                                                                    if indx_flux >= 0 and indx_flux <= nr_bin-1:
-                                                                        planet_total[indx_Rp,indx_flux] = planet_total[indx_Rp,indx_flux] + 1
-                                                                            Rp_dist[indx_Rp] = Rp_dist[indx_Rp] + 1
-                                                                                flux_dist[indx_flux] = flux_dist[indx_flux] + 1
-                                                                                    if all_habi[j] == 'ye':
-                                                                                        habi_total[indx_Rp,indx_flux] = habi_total[indx_Rp,indx_flux] + 1
-                                                                                            Rp_habi[indx_Rp] = Rp_habi[indx_Rp] + 1
-                                                                                                flux_habi[indx_flux] = flux_habi[indx_flux] + 1
-                                                                                                    j = j + 1
+    all_MS[j] = float(line_split[0])
+    all_flux[j] = float(line_split[1])
+    all_Rp[j] = float(line_split[2])
+    all_Mp[j] = float(line_split[3])
+    all_atmtype[j] = line_split[4]
+    all_Psurf[j] = float(line_split[5])
+    all_Tsurf[j] = float(line_split[6])
+    all_alb[j] = float(line_split[7])
+    all_relhum[j] = float(line_split[8])
+    all_CO2[j] = float(line_split[9])
+    all_N2[j] = float(line_split[10])
+    all_habi[j] = line_split[11]
+    
+    indx_Rp = bisect_left(Rp_grid,all_Rp[j]) - 1
+    indx_flux = bisect_left(flux_grid,all_flux[j]) - 1
+    if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
+        if indx_flux >= 0 and indx_flux <= nr_bin-1:
+            planet_total[indx_Rp,indx_flux] = planet_total[indx_Rp,indx_flux] + 1
+            Rp_dist[indx_Rp] = Rp_dist[indx_Rp] + 1
+            flux_dist[indx_flux] = flux_dist[indx_flux] + 1
+            if all_habi[j] == 'ye':
+                habi_total[indx_Rp,indx_flux] = habi_total[indx_Rp,indx_flux] + 1
+                Rp_habi[indx_Rp] = Rp_habi[indx_Rp] + 1
+                flux_habi[indx_flux] = flux_habi[indx_flux] + 1
+                j = j + 1
 
 
 # flux-Rp distribution
@@ -678,31 +678,31 @@ j = 0
 for i in lines[6:]:
     line_split = i.split(' ')
         
-        all_MS[j] = float(line_split[0])
-            all_flux[j] = float(line_split[1])
-                all_Rp[j] = float(line_split[2])
-                    all_Mp[j] = float(line_split[3])
-                        all_atmtype[j] = line_split[4]
-                            all_Psurf[j] = float(line_split[5])
-                                all_Tsurf[j] = float(line_split[6])
-                                    all_alb[j] = float(line_split[7])
-                                        all_relhum[j] = float(line_split[8])
-                                            all_CO2[j] = float(line_split[9])
-                                                all_N2[j] = float(line_split[10])
-                                                    all_habi[j] = line_split[11]
-                                                        
-                                                        indx_Rp = bisect_left(Rp_grid,all_Rp[j]) - 1
-                                                            indx_flux = bisect_left(flux_grid,all_flux[j]) - 1
-                                                                if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
-                                                                    if indx_flux >= 0 and indx_flux <= nr_bin-1:
-                                                                        planet_total[indx_Rp,indx_flux] = planet_total[indx_Rp,indx_flux] + 1
-                                                                            Rp_dist[indx_Rp] = Rp_dist[indx_Rp] + 1
-                                                                                flux_dist[indx_flux] = flux_dist[indx_flux] + 1
-                                                                                    if all_habi[j] == 'ye':
-                                                                                        habi_total[indx_Rp,indx_flux] = habi_total[indx_Rp,indx_flux] + 1
-                                                                                            Rp_habi[indx_Rp] = Rp_habi[indx_Rp] + 1
-                                                                                                flux_habi[indx_flux] = flux_habi[indx_flux] + 1
-                                                                                                    j = j + 1
+    all_MS[j] = float(line_split[0])
+    all_flux[j] = float(line_split[1])
+    all_Rp[j] = float(line_split[2])
+    all_Mp[j] = float(line_split[3])
+    all_atmtype[j] = line_split[4]
+    all_Psurf[j] = float(line_split[5])
+    all_Tsurf[j] = float(line_split[6])
+    all_alb[j] = float(line_split[7])
+    all_relhum[j] = float(line_split[8])
+    all_CO2[j] = float(line_split[9])
+    all_N2[j] = float(line_split[10])
+    all_habi[j] = line_split[11]
+    
+    indx_Rp = bisect_left(Rp_grid,all_Rp[j]) - 1
+    indx_flux = bisect_left(flux_grid,all_flux[j]) - 1
+    if indx_Rp >= 0 and indx_Rp <= nr_bin-1:
+        if indx_flux >= 0 and indx_flux <= nr_bin-1:
+            planet_total[indx_Rp,indx_flux] = planet_total[indx_Rp,indx_flux] + 1
+            Rp_dist[indx_Rp] = Rp_dist[indx_Rp] + 1
+            flux_dist[indx_flux] = flux_dist[indx_flux] + 1
+            if all_habi[j] == 'ye':
+                habi_total[indx_Rp,indx_flux] = habi_total[indx_Rp,indx_flux] + 1
+                Rp_habi[indx_Rp] = Rp_habi[indx_Rp] + 1
+                flux_habi[indx_flux] = flux_habi[indx_flux] + 1
+                j = j + 1
 
 
 # flux-Rp distribution
