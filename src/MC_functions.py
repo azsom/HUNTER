@@ -155,6 +155,7 @@ def Mplanet_gauss_opt_sigma6(RP,M_water,M_silicate,M_iron,R_silicate,R_water):
    if RP < RP_crit:
       # small rocky planets. the mass is normally distributed around the mean
       # and the sigma is the fraction of the mean
+      
       M_w = M_water(RP)
       M_s = M_silicate(RP)
       M_i = M_iron(RP) 
@@ -388,31 +389,31 @@ def Psurf_lognorm_1e7(Mp,g_surf,Rp,atm):
    return PS
 
 # surface albedo
+albmin = 0e0
+albmax = 1e0
+
 #@profile
 def alb_surf_uniform():
    # uniformly distributed
-   albmin = 0e0
-   albmax = 0.4e0
    alb = ran.uniform(albmin,albmax)
-   
    return alb
 def alb_surf_normal():
    alb = -1e0
-   while alb < 0e0 or alb > 0.4:
+   while alb < albmin or alb > albmax:
       alb = np.random.normal(0.2,0.1)
-   if alb < 0e0 or alb > 0.4:
+   if alb < albmin or alb > albmax:
       print 'albedo aout of range.',alb
       raise ValueError
       
    return alb
 def alb_surf_lognormal():
    alb = -1e0
-   while alb < 0e0 or alb > 0.4:
+   while alb < albmin or alb > albmax:
       alb = np.random.lognormal(0.0,1e0)
       mode = np.exp(0e0-1e0**2e0)
       alb = alb / mode * 0.1
-   if alb < 0e0 or alb > 0.4:
-      print 'albedo aout of range.'
+   if alb < albmin or alb > albmax:
+      print 'albedo out of range.'
       raise ValueError
    return alb
 
@@ -664,7 +665,7 @@ def occurrence_rate():
    values = np.vstack([np.log10(flux_points), np.log10(Rp_points)])
    kernel = stats.gaussian_kde(values, bw_method = len(flux)**(-1./(2.0+4.0)))
 
-## generate gaussianKDE.pdf:
+# ## generate gaussianKDE.pdf:
 #    sample = kernel.resample(size=10000)
 # 
 #    x_sample = 10e0**sample[0,:]
@@ -672,7 +673,7 @@ def occurrence_rate():
 # 
 # 
 #    ## if x and y ranges are changes, check the tick locs and labels below!
-#    xmin = -1.5e0
+#    xmin = -1e0
 #    xmax = 2e0
 #    ymin = -0.5
 #    ymax = 1.5
@@ -682,9 +683,10 @@ def occurrence_rate():
 # 
 #    matplotlib.rcParams.update({'font.size': 18})
 # 
+#    plt.figure(figsize=(8,6))
 # 
 #    plt.axis([xmin,xmax,ymin,ymax])
-#    plt.imshow(np.rot90(Z), cmap=plt.cm.gist_earth_r,extent=[xmin, xmax, ymin, ymax])
+#    plt.imshow(np.rot90(Z), cmap=plt.cm.gist_earth_r,extent=[xmin, xmax, ymin, ymax],aspect='auto')
 #    plt.scatter(np.log10(flux),np.log10(Rp),s=80,marker='+',color='k',linewidth=2)
 #    #CB=plt.colorbar(CS)
 #    #CB.set_label('occurrence rate')
@@ -701,12 +703,14 @@ def occurrence_rate():
 #    plt.savefig('../figs/gaussianKDE.pdf', bbox_inches='tight')
 #    plt.close()
 #    
-#    stop
+#   stop
 
    return kernel,np.sum(f_occur)
+   
 
-# monte carlo sampling
-def MC_sample(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,atm_N2_CO2):
+# monte carlo integration
+#@profile
+def MC_int(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,atm_N2_CO2):
 
    ## data and functions
    # stuff u need to calculate the boiling point
@@ -731,13 +735,13 @@ def MC_sample(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,at
    [g_surf_grid,T_boil,T_num,Psurf_grid,relhum_grid,semi_major_H2,fluxfac_H2,T_top_H2] = pickle.load(file)
    file.close()
 
-   alb_grid = np.linspace(0e0,0.4e0,num=5,endpoint=True)
+   alb_grid = np.linspace(albmin,albmax,num=5,endpoint=True)
 
    # functions to calculate M_iron, M_silicate, and M_water based on Seager et al 2007:
    pmass = 10e0**np.linspace(np.log10(0.01),np.log10(1000),num=1000)
    R_water = 10e0**(-0.209396 + np.log10(pmass/5.52)/3e0 - 0.0807*(pmass/5.52)**(0.375)) * 4.43
    R_sil = 10e0**(-0.209594 + np.log10(pmass/10.55)/3e0 - 0.0799*(pmass/10.55)**(0.413)) * 3.90
-   R_iron = 10e0**(-0.209490 + np.log10(pmass/5.8)/3e0 - 0.0804*(pmass/5.8)**(0.394)) * 2.52
+   R_iron = 10e0**(-0.209490 + np.log10(pmass/5.8)/3e0 - 0.0804*(pmass/5.8)**(0.394)) * 2.52   
 
    M_water = interp1d(R_water,pmass)
    M_silicate = interp1d(R_sil,pmass)
@@ -778,18 +782,26 @@ def MC_sample(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,at
       # draw stellar properties
       # Teff should be between 3100 and 4000 K - Dressing&Charbonneau
       TS = 0e0
-      while TS < 3100e0 or TS > 4000e0:
+      while TS < 5500e0 or TS > 6000e0:
          MS = stellar_mass()   
          spl = scipy.interpolate.splrep(Mstar_B, Teff_B)
          TS = scipy.interpolate.splev(MS, spl, ext=1)
       
-      # draw planet radius and orbital period values from the distribution of Dressing&Charbonneau 2013
-      flux = 0e0
-      Rp = 0e0
-      while flux < 0e0 or Rp < 0.5:
-         sample = Rp_F_kernel.resample(size=1)
-         flux = 10e0**sample[0,0]
-         Rp = 10e0**sample[1,0]
+#       # draw planet radius and orbital period values from the distribution of Dressing&Charbonneau 2013
+#       flux = 0e0
+#       Rp = 0e0
+#       while flux < 0e0 or Rp < 0.5:
+#          sample = Rp_F_kernel.resample(size=1)
+#          flux = 10e0**sample[0,0]
+#          Rp = 10e0**sample[1,0]
+      
+      # planet flux and radius are uniformly distributed
+      logF_min = -2e0
+      logF_max = 2e0
+      logRp_min = np.log10(0.5)
+      logRp_max = np.log10(5e0)
+      flux = 10e0**np.random.uniform(logF_min,logF_max)
+      Rp = 10e0**np.random.uniform(logRp_min,logRp_max)
       
       planet = planet + 1e0
       Mp, dens_crit = Mplanet(Rp,M_water,M_silicate,M_iron,R_silicate,R_water)
@@ -865,6 +877,9 @@ def MC_sample(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,at
             # normalized T_surf grid, 0e0 = 273 K, 1e0 = boiling temperature
             T_surf_norm = np.linspace(0e0,1e0,num=T_num,endpoint = True)
             
+            T_surf = 0e0
+            T_top = 0e0
+            
             # atmosphere is set up. let's check whether the surface climate is habitable :)
             if atm == 'H2' and PS < 1e7:     
                if flux >= np.min(fluxfac_H2) and flux <= np.max(fluxfac_H2):
@@ -880,11 +895,6 @@ def MC_sample(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,at
                   T_surf = np.interp(flux,flux_grid,T_gr,left = 0e0, right = 1000e0)
                   T_top = np.interp(flux,flux_grid,T_top_grid,left = 0e0, right = 1000e0)
                   
-                  if T_surf >= 273e0 and T_surf <= 647e0 and T_top <= 100e0:
-                     habitable = habitable + 1e0               
-                     all_habi[i] = 'yes'
-                     all_Tsurf[i] = T_surf
-                     
             if atm == 'N2' and PS < 1e7:
                if flux >= np.min(fluxfac_N2) and flux <= np.max(fluxfac_N2):
                   
@@ -899,11 +909,6 @@ def MC_sample(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,at
                   T_surf = np.interp(flux,flux_grid,T_gr,left = 0e0, right = 1000e0)
                   T_top = np.interp(flux,flux_grid,T_top_grid,left = 0e0, right = 1000e0)
                   
-                  if T_surf >= 273e0 and T_surf <= 647e0 and T_top <= 100e0:
-                     habitable = habitable + 1e0
-                     all_habi[i] = 'yes'
-                     all_Tsurf[i] = T_surf
-                     
             if atm == 'CO2' and PS < 1e7:
                if flux >= np.min(fluxfac_CO2) and flux <= np.max(fluxfac_CO2):
                   
@@ -917,18 +922,56 @@ def MC_sample(n,Rp_F_kernel, sum_occur,Mplanet,atm_type,Psurf,alb_surf,relhum,at
                   # also check whether T_top isn't too large!
                   T_surf = np.interp(flux,flux_grid,T_gr,left = 0e0, right = 1000e0)
                   T_top = np.interp(flux,flux_grid,T_top_grid,left = 0e0, right = 1000e0)
-                  
-                  if T_surf >= 273e0 and T_surf <= 647e0 and T_top <= 100e0:
-                     habitable = habitable + 1e0
-                     all_habi[i] = 'yes'
-                     all_Tsurf[i] = T_surf
+            
+            # let's check whether the atmosphere is stable 
+            # following Heng & Kopparla, 2012, I compare the advective and radiative time scales
+            if T_surf >= 273e0 and T_surf <= 647e0 and T_top <= 100e0:
+               # number of degrees of freedom of freedom of the gas, we adapt 5 for simplicity
+               ndof = 5e0
+               # adiabatic gas index
+               gamma = 1e0 + 2e0/ndof
+               # irradiation temperature
+               Tirr = (flux/d.sigma)**(1e0/4e0)
+               # mean molecular mass
+               if atm == 'H2':
+                  mean_mm = d.mu*2e0
+                  cp = (2e0+ndof)*d.R_gas/(2e0*2e0)
+               if atm == 'N2':
+                  mean_mm = d.mu*(28e0*N2 + 44e0*CO2)
+                  cp = (2e0+ndof)*d.R_gas/(2e0*(28e0*N2 + 44e0*CO2))
+               if atm == 'CO2':
+                  mean_mm = d.mu*(28e0*N2 + 44e0*CO2)
+                  cp = (2e0+ndof)*d.R_gas/(2e0*(28e0*N2 + 44e0*CO2))
+               # sound speed
+               cs = np.sqrt(gamma*d.kb*T_surf/mean_mm)
+               
+               # advective time scale:
+               t_adv = Rp*d.R_Earth / cs               
+               # radiative time scale
+               t_rad = cp * T_surf * PS / (g_surf*flux*1370e0)
+               
+               #print t_adv, t_rad
+               
+               if t_adv < t_rad:
+                  habitable = habitable + 1e0
+                  all_habi[i] = 'yes'
+                  all_Tsurf[i] = T_surf
+               else:
+                  all_habi[i] = 'no'
+                  all_Tsurf[i] = T_surf
+            else:
+               all_habi[i] = 'no'
+               all_Tsurf[i] = T_surf
+            
+            
+            
             
       i = i + 1
 
-   #print 'fraction of stars with planets: ', planet/n * sum_occur
    print 'fraction of rocky planets: ', rocky/n * sum_occur
    print 'fraction of habitable planets: ', habitable/n * sum_occur
 
    results = [all_MS,all_flux,all_Rp,all_Mp,all_atmtype,all_Psurf,all_Tsurf,all_alb,all_relhum,all_CO2,all_N2,all_habi,planet,rocky,habitable]   
    
    return results
+   
