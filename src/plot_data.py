@@ -1,4 +1,4 @@
-# to read and plot the output of HUNTE
+# to read and plot the output of HUNTER
 
 import matplotlib.pyplot as plt
 import numpy as np
